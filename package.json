@@ -1,6 +1,6 @@
 {
   "name": "pension-efter-skatt",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Pension efter skatt – räknar netto från allmän pension, premiepension och tjänstepension",
   "scripts": {
