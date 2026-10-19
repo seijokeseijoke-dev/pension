@@ -44,7 +44,8 @@ jobs:
             echo "signed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/upload.jks" || { echo "::error::ANDROID_KEYSTORE_BASE64 är inte giltig base64 – skapa upload.b64 igen enligt README"; exit 1; }
+          # Tål både ren base64 och certutil-format (rader med -----BEGIN/END----- och radbrytningar)
+          printf '%s' "$KEYSTORE_B64" | grep -v -- '-----' | tr -d ' \r\n' | base64 --decode > "$RUNNER_TEMP/upload.jks" || { echo "::error::ANDROID_KEYSTORE_BASE64 är inte giltig base64 – skapa upload.b64 igen enligt README"; exit 1; }
           echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
           echo "signed=true" >> "$GITHUB_OUTPUT"
 
