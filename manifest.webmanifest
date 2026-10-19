@@ -1,0 +1,10 @@
+{
+  "name": "Pension efter skatt",
+  "short_name": "Pension",
+  "lang": "sv",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f6f4",
+  "theme_color": "#e0661b",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
