@@ -1,0 +1,64 @@
+# Bygger en signerad Android App Bundle (.aab) för Google Play.
+# Startas manuellt (Actions → "Bygg Android-app" → Run workflow) eller när en tagg v* pushas.
+name: Bygg Android-app
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Installera beroenden
+        run: npm ci
+
+      - name: Kör skattetester
+        run: node test.js
+
+      - name: Bygg webbdelen och synka till Android
+        run: |
+          python3 build.py
+          npx cap sync android
+
+      - name: Hämta uppladdningsnyckeln
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then echo "Hemligheten ANDROID_KEYSTORE_BASE64 saknas – se README"; exit 1; fi
+          echo "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+
+      - name: Bygg signerad App Bundle
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          VERSION=$(node -p "require('../package.json').version")
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon \
+            -PappVersionCode=${{ github.run_number }} \
+            -PappVersionName="$VERSION"
+
+      - name: Ladda upp appfilen
+        uses: actions/upload-artifact@v4
+        with:
+          name: pension-efter-skatt-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30

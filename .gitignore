@@ -1,0 +1,5 @@
+node_modules/
+preview.html
+app/www/
+*.jks
+*.keystore

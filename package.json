@@ -1,0 +1,21 @@
+{
+  "name": "pension-efter-skatt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pension efter skatt – räknar netto från allmän pension, premiepension och tjänstepension",
+  "scripts": {
+    "test": "node test.js",
+    "build": "python3 build.py",
+    "sync": "python3 build.py && npx cap sync android"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "8.5.3",
+    "@fontsource/familjen-grotesk": "5.3.0",
+    "@fontsource/instrument-sans": "5.3.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3"
+  }
+}

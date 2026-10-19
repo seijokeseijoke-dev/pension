@@ -1,0 +1,10 @@
+{
+  "appId": "app.pensionkalkylator",
+  "appName": "Pension efter skatt",
+  "webDir": "app/www",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}

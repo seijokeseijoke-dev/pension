@@ -86,10 +86,23 @@ label{display:grid;gap:3px;font-size:.75rem;color:var(--muted);min-width:0}
 .row.net span:first-child{color:var(--fg);font-weight:600}
 .row.net b{font-family:var(--f-display);font-size:1.6rem;font-weight:700;color:var(--good)}
 .zero{color:var(--muted)}
+.row.ga b{font-weight:500;color:var(--muted)}
+.row.ga span:first-child{font-style:italic}
 .chip{font-size:.68rem;font-weight:600;letter-spacing:.04em;padding:2px 7px;border-radius:99px;border:1px solid var(--line);color:var(--muted);margin-left:6px;white-space:nowrap}
 .chip.on{border-color:var(--accent);color:var(--accent)}
 .note{font-size:.72rem;color:var(--muted);margin:0;line-height:1.4}
 .ex{font-size:.72rem;color:var(--accent);margin:0}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.about-btn{font:inherit;font-size:.75rem;font-weight:600;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:99px;padding:3px 10px;cursor:pointer}
+.about-btn:focus-visible,.about-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.about{position:fixed;inset:0;z-index:20;background:color-mix(in srgb,var(--fg) 45%,transparent);display:grid;place-items:center;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.about-card{background:var(--surface);color:var(--fg);border-radius:var(--r);max-width:440px;width:100%;max-height:100%;overflow:auto;padding:18px;display:grid;gap:10px}
+.about-card h2{font-family:var(--f-display);font-size:1.15rem;margin:0}
+.about-card p{margin:0;font-size:.85rem;line-height:1.45}
+.about-card .meta{color:var(--muted);font-size:.75rem}
+.about-card a{color:var(--accent)}
+.about-close{justify-self:end;font:inherit;font-weight:600;color:#fff;background:var(--accent);border:0;border-radius:8px;padding:8px 16px;cursor:pointer}
 @media (prefers-reduced-motion:no-preference){.row b{transition:color .2s}}
 </style>
 </head>
@@ -99,7 +112,7 @@ label{display:grid;gap:3px;font-size:.75rem;color:var(--muted);min-width:0}
 <main>
   <header>
     <h1>Pension efter skatt</h1>
-    <span class="year" id="yearBadge">Inkomstår</span>
+    <div class="hdr-r"><span class="year" id="yearBadge">Inkomstår</span><button type="button" class="about-btn" id="aboutOpen" aria-label="Om appen">Om</button></div>
   </header>
 
   <form id="f" autocomplete="off">
@@ -126,6 +139,7 @@ label{display:grid;gap:3px;font-size:.75rem;color:var(--muted);min-width:0}
   <div class="results" id="results">
   <section class="slip" aria-live="polite">
     <div class="row"><span>Brutto</span><b id="oBrutto">–</b></div>
+    <div class="row sub ga"><span><span class="l">Grundavdrag, skattefritt</span><span class="s">Grundavdr.</span><span class="chip" id="oGaChip" hidden>förhöjt 66+</span></span><b id="oGa">–</b></div>
     <div class="row sub"><span><span class="l">Kommunal skatt</span><span class="s">Kommunal</span></span><b id="oKommunal">–</b></div>
     <div class="row sub"><span><span class="l">Statlig skatt</span><span class="s">Statlig</span><span class="chip" id="oSkikt">under skiktgräns</span></span><b id="oStatlig">–</b></div>
     <div class="row sub"><span><span class="l">Begravnings- och kyrkoavgift</span><span class="s">Begr./kyrka</span></span><b id="oAvgift">–</b></div>
@@ -144,6 +158,18 @@ label{display:grid;gap:3px;font-size:.75rem;color:var(--muted);min-width:0}
   <p class="note" id="oInfo"></p>
   <p class="note">Belopp per månad, slutlig skatt enligt Skatteverkets regler. Skatt % per pension = utbetalarens avdrag (t.ex. 30 % på tjänstepension). Lämnas den blank används kommunalskatten på bruttobeloppet, utan grundavdrag.</p>
 </main>
+
+<div class="about" id="about" hidden role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+  <div class="about-card">
+    <h2 id="aboutTitle">Om Pension efter skatt</h2>
+    <p>Appen räknar fram brutto, skatt och netto per månad för allmän pension, premiepension och tjänstepension enligt Skatteverkets regler för inkomståret.</p>
+    <p><b>Ansvarsfriskrivning.</b> Resultatet är en beräkning och inte rådgivning. Den faktiska skatten bestäms av Skatteverket och kan avvika, till exempel vid andra inkomster, avdrag eller ändrade regler. Kontrollera alltid mot ditt utbetalningsbesked och din slutskatt.</p>
+    <p><b>Dina uppgifter.</b> Allt räknas i telefonen. Inga uppgifter skickas till oss eller någon annan. Dina senaste inmatningar sparas bara lokalt i appen.</p>
+    <p><a href="https://seijokeseijoke-dev.github.io/pension/integritet.html" target="_blank" rel="noopener">Integritetspolicy</a> · <a href="https://seijokeseijoke-dev.github.io/pension/villkor.html" target="_blank" rel="noopener">Användarvillkor</a></p>
+    <p class="meta">Version 1.0.0 · Skatteregler inkomstår <span id="aboutYear"></span> · Källa: Skatteverket, SKV 433</p>
+    <button type="button" class="about-close" id="aboutClose">Stäng</button>
+  </div>
+</div>
 
 <script>/* Pensionsskatt – beräkningsmotor
  * Källa: Skatteverket, Teknisk beskrivning SKV 433 (2026, utgåva 36)
@@ -343,6 +369,7 @@ label{display:grid;gap:3px;font-size:.75rem;color:var(--muted);min-width:0}
     var m=r.manad;
     $("yearBadge").textContent="Inkomstår "+r.year+(r.exactYear?"":" *");
     $("oBrutto").textContent=fmt(m.brutto);
+    $("oGa").textContent=fmt(r.ar.grundavdrag/12);$("oGaChip").hidden=!r.forhojt;
     $("oKommunal").textContent=fmt(m.kommunal);
     $("oStatlig").textContent=fmt(m.statlig);
     $("oStatlig").className=m.statlig>0?"":"zero";
@@ -366,14 +393,18 @@ label{display:grid;gap:3px;font-size:.75rem;color:var(--muted);min-width:0}
 
     var a=r.ar;
     var eff=a.brutto>0?(a.total/a.brutto*100).toFixed(1).replace(".",","):"0";
-    $("oInfo").textContent="Per år: brutto "+fmt(a.brutto)+", grundavdrag "+fmt(a.grundavdrag)+
-      (r.forhojt?" (förhöjt, 66+)":"")+", beskattningsbart "+fmt(a.beskattningsbar)+
+    $("oInfo").textContent="Per år: brutto "+fmt(a.brutto)+", grundavdrag "+fmt(a.grundavdrag)+", beskattningsbart "+fmt(a.beskattningsbar)+
       ". Skiktgräns "+fmt(r.skiktgrans)+". Effektiv skatt "+eff+" %."+
       (r.exactYear?"":" * Parametrar för "+year+" saknas, "+r.year+" års regler används.");
     var raw={};ids.forEach(function(k){raw[k]=state[k]==null?"":String(state[k])});
     try{localStorage.setItem(KEY,JSON.stringify(raw))}catch(e){}
   }
   $("f").addEventListener("submit",function(e){e.preventDefault()});
+  var ab=$("about");
+  $("aboutOpen").addEventListener("click",function(){$("aboutYear").textContent=Object.keys(PensionCalc.YEARS).join(", ");ab.hidden=false;$("aboutClose").focus()});
+  $("aboutClose").addEventListener("click",function(){ab.hidden=true;$("aboutOpen").focus()});
+  ab.addEventListener("click",function(e){if(e.target===ab)ab.hidden=true});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!ab.hidden)ab.hidden=true});
   run();
 })();
 </script>
